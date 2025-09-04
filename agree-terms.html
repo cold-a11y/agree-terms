@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>약관동의</title>
+
+    <!-- 폰트 및 JQuery CDN -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+            color: #333;
+            font-size: 15px;
+        }
+        .notice-pop-ov {
+            position: fixed; 
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            background-color: #191919;
+        }
+        .notice-pop-ov::before {
+            content: ''; display: block; 
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%); bottom: 0;  
+            width: 100%; max-width: 800px;
+            background: #191919 url('./images/tutorial/mbg_20.jpg') no-repeat top center / 100%;
+        }
+        .wd-max {
+            width: 100%; max-width: 800px; 
+            margin: 0 auto;
+        }
+        .atc-warp {
+            position: relative;
+            background-color: white;
+            width: 100%;
+            padding: 10px 0 25px;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            animation: toup20 0.5s ease-out forwards;
+        }
+        @keyframes toup20 {
+            0% {margin-bottom: -100%;}
+            100% {margin-bottom: 0;}
+        }   
+        .atc-warp button {
+            display: block;
+            background: transparent;
+            border: none; outline: none;
+            margin: 0;
+            font: inherit;
+            cursor: pointer;
+        }
+        .atc-warp .toast-closed-btn {
+            position: absolute;
+            right: 6%; top: 1%;
+            width: 28px;
+            height: 28px;
+            font-size: 27px;
+        }
+        /* 약관동의 콘텐츠 */
+        .contents-atc {
+            padding: 15px 17px 20px;
+            box-sizing: border-box;
+        }
+        .contents-atc .title {
+            font-size: 20px; font-weight: 500; 
+            color: #333;
+            text-align: center; 
+            margin: 10px auto; 
+        }
+        .contents-atc .desc {
+            font-size: 15px;
+            color: #777;
+            line-height: 1.4;
+            margin: 20px 0; 
+        }
+        .contents-atc .agree-Box {font-size: 16px;}
+        .contents-atc .agree-Box > div {
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            margin: 12px 0 0;
+        }
+        .contents-atc .agree-Box .chk-item {color: #333;}
+        .contents-atc .agree-Box > div label {
+            display: flex;
+            align-items: center;
+        }
+        .contents-atc .agree-Box > div input[type='checkbox'] {
+            display: none;
+        }
+        .contents-atc .agree-Box > div label::before {
+            content: '';
+            display: block; 
+            width: 19px; height: 19px;
+            border: 1px solid #ccc; 
+            border-radius: 100%; 
+            margin: 0 7px 0 0;
+            box-sizing: border-box;
+        } 
+        .contents-atc .agree-Box > div input[type='checkbox']:checked + label::before  {
+            border: none;
+            background: url('../images/icons/ico_checkbox_atp.png') no-repeat center / cover;
+        }
+        .contents-atc .agree-Box .chk-all-item {
+            font-weight: 500;
+            padding: 0 0 15px;
+            border-bottom: 1px solid #dfdfdf;
+        }
+        .contents-atc .agree-Box .btn-item {
+            margin: 35px 0 0;
+        }
+        .contents-atc button {
+            display: block;
+            background: transparent;
+            border: none; outline: none;
+            margin: 0;
+            font: inherit;
+            cursor: pointer;
+        }
+        .contents-atc .btn-link {padding: 0 10px; }
+        .contents-atc .btn-link img {width: 9px;}
+        .contents-atc .btn-agree {
+            width: 100%;
+            font-size: 17px;
+            padding: 15px;
+            color: #fff;
+            background-color: #31A6EB;
+            border-radius: 12px;
+            box-sizing: border-box;
+        }    
+        /* -- Modal Box -- */
+        .term-modalwrap {
+            display: none;
+            position: fixed;
+            left: 0; right: 0; top: 0; bottom: 0;
+            min-height: 100vh;
+            color: #eee;
+            background-color: #191919;
+        }
+        .term-modalwrap > .inner {
+            display: block;
+            width: 100%; height: 100%;
+            position: relative;
+            padding: 0 15px;
+            box-sizing: border-box;
+            background-color: #191919;
+        }
+        .term-modalwrap > .inner .btn-modal-closed {
+            position: absolute;
+            top: 3%; left: 5%;
+            display: block; width: 20px; height: 20px;
+            background: transparent url('../images/icons/button_closed.png') no-repeat center / cover;
+            outline: none; border: none;
+            cursor: pointer;
+        }
+        .term-modalwrap .title {
+            font-size: 18px;
+            text-align: center;
+            padding: 25px 0;
+            margin: 0;
+        }
+        .term-modalwrap .term-contents {
+            display: block;
+            width: 100%; height: 100%;
+            overflow-y: auto;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        .term-modalwrap .term-contents::-webkit-scrollbar {width: 2px;}
+        .term-modalwrap .term-contents::-webkit-scrollbar-track {background-color:transparent}
+        .term-modalwrap .term-contents::-webkit-scrollbar-thumb {background-color: rgba(255,255,255,0.05); border-radius: 4px;}
+        .term-modalwrap .term-contents::-webkit-scrollbar-button {display: none;}            
+        .contents-term-wrap {
+            display: block;
+            width: 100%; 
+            margin: 0; 
+            padding: 0 0 130px;
+            font-size: 14.5px;
+            color: #bbb;
+            background-color: #191919;
+            line-height: 1.4;
+            box-sizing: border-box;
+            white-space: pre-line;
+        }
+        .contents-term-wrap > i {
+            font-style: normal;
+            font-size: 16px;
+            color: #eee;
+        }
+        .contents-term-wrap .table {
+            border-color: #ccc;
+            border-collapse: collapse;
+        }
+        .contents-term-wrap .table td {
+            border: 1px solid rgba(255,255,255,0.25);
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        .contents-term-wrap .table td:first-child {
+            min-width: 50px;
+        }
+        .contents-term-wrap .table td:nth-child(2) {
+            min-width: 50px;
+            text-align: center;
+        }
+        .contents-term-wrap .table tr:first-child {
+            text-align: center;
+        }        
+    </style>
+</head>
+<body>
+    <div class="notice-pop-ov">
+        <div class="container-atc">
+            <div class="atc-warp wd-max">
+                <button class="toast-closed-btn" onClick="alert('동의해야지 이용할 수 있어요')">×</button>
+                <!-- 약관동의 콘텐츠 시작 -->
+                <div class="contents-atc">
+                    <form action="?agree">
+                        <div class="inner">
+                            <h2 class="title">혜택 충전소 약관동의</h2>
+                            <p class="desc">
+                                혜택 충전소에 오신 것을 환영합니다. <br>
+                                본 서비스 이용을 위하여 아래의 약관 동의가 필요합니다.
+                            </p>
+                            <div class="agree-Box">
+                                <div class="chk-all-item">
+                                    <input type="checkbox" id="agree-all1">
+                                    <label for="agree-all1">전체 동의합니다.</label>
+                                </div>
+                                <div class="chk-item">
+                                    <input type="checkbox" id="agree001">
+                                    <label for="agree001">서비스 이용약관 동의 (필수)</label>
+                                    <button class="btn-link" id="view-use-term20" data-file="terms-use.html">
+                                        <img src="../images/icons/ico_arrow_agree_atp.png" alt="">
+                                    </button>
+                                </div>
+                                <div class="chk-item">
+                                    <input type="checkbox" id="agree002">
+                                    <label for="agree002">개인정보 처리 방침 동의 (필수)</label>
+                                    <button class="btn-link" id="view-privacy-term20" data-file="terms-privacy.html">
+                                        <img src="../images/icons/ico_arrow_agree_atp.png" alt="">
+                                    </button>
+                                </div>
+                                <div class="btn-item">
+                                    <button class="btn-agree">동의하고 시작하기</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <script>
+                    $("form").on("submit", function(e) {
+                        e.preventDefault();
+                        if (!$('#agree001').is(':checked') || !$('#agree002').is(':checked')) {
+                            alert('필수 약관에 동의해주세요.');
+                            return false;
+                        }
+                        // 동의 후 처리 로직 추가
+                        $.ajax(
+                            {
+                                url: '?o=agree', // 서버의 약관 동의 처리 URL
+                                type: 'POST',
+                                data: {
+                                    agree001: $('#agree001').is(':checked'),
+                                    agree002: $('#agree002').is(':checked')
+                                },
+                                success: function(response) {
+                                    if(response.result !== 'success') {
+                                        alert('약관 동의 처리에 실패했습니다. 다시 시도해주세요.');
+                                        return;
+                                    }
+                                    location.href = '/'; // 약관 동의 페이지로 리다이렉트
+                                    // 예: location.href = '/main'; // 메인 페이지로 이동
+                                },
+                                error: function(xhr, status, error) {
+                                    console.error('약관 동의 처리 오류:', status, error);
+                                    alert('약관 동의 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+                                }
+                            }
+                        )
+                        // 예: location.href = '/main'; // 메인 페이지로 이동
+                    });
+                    // 모두 동의하기 스크립트
+                    $('.agree-Box #agree-all1').on('change', function(){
+                        if($('#agree-all1').is(':checked')){
+                             $('.agree-Box .chk-item input[type="checkbox"]').prop('checked', true);
+                        }else{
+                             $('.agree-Box .chk-item input[type="checkbox"]').prop('checked', false);
+                        }
+                    });
+                </script>
+
+                <!-- 서비스 이용약관 Modal -->
+                <div class="term-modalwrap" id="use-term-modal20">
+                    <div class="inner wd-max">
+                        <button class="btn-modal-closed" id="btn-modal-closed"></button>
+                        <p class="title"></p>
+                        <div class="term-contents divid-line" id="term-text-secction">
+                        </div>
+                    </div>
+                </div>
+                <!-- 서비스 이용약관 Modal 끝 -->
+
+            <script>
+            // 팝업 열기 함수
+            function openPopup() { 
+                $('#use-term-modal20').fadeIn(300);
+            }
+
+            // 팝업 닫기 버튼 이벤트
+            $('#btn-modal-closed').click(function(){
+                 $('#use-term-modal20').fadeOut(300);
+            });
+
+            $('.btn-link').click(function(e) {
+                e.preventDefault();
+                const fileName = $(this).data('file');
+                loadContent(fileName);
+            });
+
+            // Ajax로 콘텐츠 로드
+            function loadContent(fileName) {
+                // terms 폴더 경로 추가
+                const filePath = fileName,
+                      poptitle = $('#use-term-modal20 .inner .title'),
+                      popContents = $('#use-term-modal20 .inner .term-contents');
+                
+                openPopup();
+                
+                // Ajax 요청
+                $.ajax({
+                    url: filePath,
+                    type: 'GET',
+                    dataType: 'html',
+                    timeout: 10000,
+                    success: function(data) {
+                        try {
+                            // HTML 파싱하여 title과 body 내용 추출
+                            const $html = $(data);
+                            const title = $html.filter('title').text() || $html.find('title').text() || '문서';
+                            const bodyContent = $html.filter('body').html() || $html.find('body').html() || data;
+                            
+                            // 팝업에 내용 설정
+                           poptitle.text(title);
+                           popContents.html(bodyContent);
+                            
+                            // 스크롤을 맨 위로
+                            popContents.scrollTop(0);
+                            
+                        } catch (error) {
+                            console.error('HTML 파싱 오류:', error);
+                            poptitle.text('오류');
+                            popContents.html('<div style="text-align: center; padding: 50px; color: #e74c3c;"><h3>내용을 불러올 수 없습니다.</h3><p>파일 형식을 확인해주세요.</p></div>');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Ajax 오류:', status, error);
+                        poptitle.text('오류');
+                        
+                        let errorMessage = '';
+                        if (status === 'timeout') {
+                            errorMessage = '<h3>요청 시간이 초과되었습니다.</h3><p>네트워크 연결을 확인해주세요.</p>';
+                        } else if (status === 'error') {
+                            errorMessage = '<h3>파일을 찾을 수 없습니다.</h3><p>' + filePath + ' 파일이 존재하는지 확인해주세요.</p>';
+                        } else {
+                            errorMessage = '<h3>알 수 없는 오류가 발생했습니다.</h3><p>잠시 후 다시 시도해주세요.</p>';
+                        }
+                       popContents.html('<div style="text-align: center; padding: 50px; color: #e74c3c;">' + errorMessage + '</div>');
+                    }
+                });
+            }
+            </script>
+
+                <!-- 약관동의 콘텐츠 끝 -->
+            </div>
+        </div>
+    </div>
+</body>
+</html>
